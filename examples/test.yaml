@@ -1,0 +1,31 @@
+rules:
+  rooms:
+  - name: Kitchen
+    location: top-left
+  - name: Ballroom
+    location: top-middle
+  characters:
+  - name: Miss Scarlett
+    starting-location: bottom-midleft
+  - name: Rev. Green
+    starting-location: top-midright
+  weapons:
+  - name: Candlestick
+  - name: Dagger
+
+game:
+  players:
+  - char: Miss Scarlett
+    cards: 2
+  - char: Rev. Green
+    cards: 1
+  turns:
+  - suggestion:
+      character: Miss Scarlett
+      weapon: Candlestick
+      room: Kitchen
+      disproof: null
+  - guess:
+  player:
+    char: Miss Scarlett
+    cards: [Kitchen, Candlestick]
