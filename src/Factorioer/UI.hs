@@ -3,6 +3,7 @@
 module Factorioer.UI where
 
 import Factorioer.Types
+import qualified Factorioer.Core.Recipes as Core.Recipes
 import Data.Text (Text)
 import qualified Data.Text as T
 import Data.Map (Map)
@@ -36,7 +37,7 @@ uiPopupRecipe recipe =
 uiPopupSegmentRecipe :: Recipe -> UIPopupSegment
 uiPopupSegmentRecipe recipe =
     let title = "Recipe: " <> recipeName
-        recipeName = uiPartRecipeName recipe in
+        recipeName = Core.Recipes.recipeName recipe in
     UIPopupSegment {
         uiPopupSegmentTitle = title,
         uiPopupSegmentBody = Just (uiPartRecipeDetails recipe)
@@ -54,16 +55,6 @@ uiPopupSegmentMaybeItemDetails recipe =
                         uiPopupSegmentTitle = (itemName . recipePartItem) part,
                         uiPopupSegmentBody = Just details
                     }
-
-uiPartRecipeName :: Recipe -> Text
-uiPartRecipeName recipe =
-    case recipeProducts recipe of
-        RecipeProductsMany name _ -> name
-        RecipeProductsOne part ->
-            let outputItemName = (itemName . recipePartItem) part in
-            case recipePartNumber part of
-                1 -> outputItemName
-                x -> tshow x <> " x " <> outputItemName
 
 uiPartRecipeDetails :: Recipe -> Text
 uiPartRecipeDetails _ = "(recipe details TODO)"

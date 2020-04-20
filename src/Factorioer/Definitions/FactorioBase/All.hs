@@ -41,7 +41,7 @@ rIronPlate =
 
 rIronGearWheel =
     let input = [(recipePartXOfItem 2 iIronPlate)] in
-    recipeOneOfItem rIronGearWheel input (CraftTimeTicks 30) crfsPlayerAndAssemblers
+    recipeOneOfItem iIronGearWheel input (CraftTimeTicks 30) crfsPlayerAndAssemblers
 
 rBeltYellow =
     let input = [

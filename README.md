@@ -34,7 +34,11 @@ that furnaces do 1 thing with their inputs only. It also extends furnaces to
 support multiple inputs (with some consideration from inserters).
 
 #### Recipes
-Recipes are defined separately from Items. They're pretty simple:
+Recipes are defined separately from Items. They're pretty simple, defining:
 
   * Ingredients and products
-  * 
+  * Crafting time
+  * Crafters able to craft this Recipe
+
+If the recipe has a single product, its name is determined by that product. If
+not, it requires a name to be provided.
