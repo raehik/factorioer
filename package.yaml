@@ -1,4 +1,4 @@
-name:                factorioier
+name:                factorioer
 version:             0.1.0
 #github:              raehik/ukc-co663-latypinf
 license:             MIT
@@ -30,7 +30,7 @@ library:
   source-dirs: src
 
 executables:
-  factorioier-exe:
+  factorioer-exe:
     main:                Main.hs
     source-dirs:         app
     ghc-options:
@@ -38,10 +38,10 @@ executables:
     - -rtsopts
     - -with-rtsopts=-N
     dependencies:
-    - factorioier
+    - factorioer
 
 tests:
-  factorioier-test:
+  factorioer-test:
     main:                Spec.hs
     source-dirs:         test
     ghc-options:
@@ -49,4 +49,4 @@ tests:
     - -rtsopts
     - -with-rtsopts=-N
     dependencies:
-    - factorioier
+    - factorioer

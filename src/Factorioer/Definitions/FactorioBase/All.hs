@@ -1,8 +1,8 @@
 {-# LANGUAGE OverloadedStrings #-}
 
-module Factorioier.Definitions.FactorioBase.All where
+module Factorioer.Definitions.FactorioBase.All where
 
-import Factorioier.Types
+import Factorioer.Types
 import Data.Text (Text)
 import qualified Data.Text as T
 import Data.Map (Map)
@@ -41,7 +41,7 @@ rIronPlate =
 
 rIronGearWheel =
     let input = [(recipePartXOfItem 2 iIronPlate)] in
-    recipeOneOfItem iIronPlate input (CraftTimeTicks 30) crfsPlayerAndAssemblers
+    recipeOneOfItem rIronGearWheel input (CraftTimeTicks 30) crfsPlayerAndAssemblers
 
 rBeltYellow =
     let input = [

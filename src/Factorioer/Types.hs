@@ -1,4 +1,4 @@
-module Factorioier.Types where
+module Factorioer.Types where
 
 import Data.Text (Text)
 import qualified Data.Text as T
@@ -13,8 +13,8 @@ data Item = Item {
 type ItemName = Text
 
 data Recipe = Recipe {
-    recipeInput :: [RecipePart],
-    recipeOutput :: RecipeOutput,
+    recipeIngredients :: [RecipePart],
+    recipeProducts :: RecipeProducts,
     recipeCraftTime :: CraftTime,
     recipeCrafters :: [Crafter]
 } deriving (Show)
@@ -26,9 +26,9 @@ data RecipePart = RecipePart {
 } deriving (Show)
 
 -- One has auto recipe title. Many requires a recipe title.
-data RecipeOutput
-    = RecipeOutputOne RecipePart
-    | RecipeOutputMany Text [RecipePart]
+data RecipeProducts
+    = RecipeProductsOne RecipePart
+    | RecipeProductsMany Text [RecipePart]
     deriving (Show)
 
 data Crafter = Crafter {
@@ -42,10 +42,10 @@ type Ticks = Int
 --------------------------------------------------------------------------------
 
 recipeXOfItem :: Int -> Item -> [RecipePart] -> CraftTime -> [Crafter] -> Recipe
-recipeXOfItem num item input craftTime crafters =
+recipeXOfItem num item ingrs craftTime crafters =
     Recipe {
-        recipeInput = input,
-        recipeOutput = RecipeOutputOne $ recipePartXOfItem num item,
+        recipeIngredients = ingrs,
+        recipeProducts = RecipeProductsOne $ recipePartXOfItem num item,
         recipeCraftTime = craftTime,
         recipeCrafters = crafters
     }

@@ -1,8 +1,8 @@
 {-# LANGUAGE OverloadedStrings #-}
 
-module Factorioier.UI where
+module Factorioer.UI where
 
-import Factorioier.Types
+import Factorioer.Types
 import Data.Text (Text)
 import qualified Data.Text as T
 import Data.Map (Map)
@@ -44,9 +44,9 @@ uiPopupSegmentRecipe recipe =
 
 uiPopupSegmentMaybeItemDetails :: Recipe -> Maybe UIPopupSegment
 uiPopupSegmentMaybeItemDetails recipe =
-    case recipeOutput recipe of
-        RecipeOutputMany _ _ -> Nothing
-        RecipeOutputOne part ->
+    case recipeProducts recipe of
+        RecipeProductsMany _ _ -> Nothing
+        RecipeProductsOne part ->
             case (itemDetails . recipePartItem) part of
                 Nothing -> Nothing
                 Just details ->
@@ -57,9 +57,9 @@ uiPopupSegmentMaybeItemDetails recipe =
 
 uiPartRecipeName :: Recipe -> Text
 uiPartRecipeName recipe =
-    case recipeOutput recipe of
-        RecipeOutputMany name _ -> name
-        RecipeOutputOne part ->
+    case recipeProducts recipe of
+        RecipeProductsMany name _ -> name
+        RecipeProductsOne part ->
             let outputItemName = (itemName . recipePartItem) part in
             case recipePartNumber part of
                 1 -> outputItemName
