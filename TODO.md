@@ -1,4 +1,18 @@
 ## Next
+### Recipe base ingredient algorithm
+  1. Get base ingredients of each part to current recipe
+
+For each part:
+
+  * Get base ingredients, each which may work towards producing any fractional amount of the
+    current recipe
+  * Multiply 
+
+Also, starting from `itemRecipes`, track unused products. For recipes with
+multiple products, this gets filled up. Then we need to do some state passing to
+make sure we try to "use" these unused products as we recurse instead of
+potentially crafting them when they were a "side-product" of another recipe.
+
 ### Finish the UI model for recipes
 Will also include finishing item model: image/sprites mainly.
 

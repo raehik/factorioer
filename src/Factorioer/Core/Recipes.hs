@@ -82,4 +82,23 @@ recipeIcon recipe =
 --
 -- Cacheable per mod config.
 recipeBaseIngredients :: ModConfig -> Recipe -> [RecipeBaseIngredient]
-recipeBaseIngredients _ _ = []
+recipeBaseIngredients mc recipe =
+    let ingrs = recipeIngredients recipe in
+    concatMap (recipePartBaseIngredients mc) ingrs
+
+recipePartBaseIngredients :: ModConfig -> RecipePart -> [RecipeBaseIngredient]
+recipePartBaseIngredients mc part =
+    let item = recipePartItem part in
+    case itemRecipes mc item of
+        -- Exactly 1 recipe: base ingredients of that recipe
+        [recipe] -> recipeBaseIngredients mc recipe
+
+        -- 0 or many recipes: this is a base ingredient, return as-is
+        _ -> [recipePartToBaseIngredient part]
+
+recipePartToBaseIngredient :: RecipePart -> RecipeBaseIngredient
+recipePartToBaseIngredient part =
+    RecipeBaseIngredient {
+        recipeBaseIngredientItem=recipePartItem part,
+        recipeBaseIngredientAmount=fromIntegral (recipePartNumber part)
+    }
