@@ -64,27 +64,60 @@ recipeIcon recipe =
         RecipeProductsMany _ sprite _ -> sprite
         RecipeProductsOne (product, _) -> itemSprite product
 
-recipeBaseIngrs mc recipe =
+recipeBaseIngrs mc recipe = recipeBaseIngrs' mc recipe Map.empty
+recipeBaseIngrs' mc recipe products =
     let ingrs = recipeIngredients recipe
-        ingrBaseIngrs = Map.foldrWithKey (itemBaseIngrs mc) [] ingrs in
-    mergeBaseIngrs ingrBaseIngrs
+        (ingrBaseIngrs, byproducts) = Map.foldrWithKey (itemBaseIngrs mc) ([], products) ingrs in
+   (mergeBaseIngrs ingrBaseIngrs, byproducts)
 
-itemBaseIngrs :: ModConfig -> Item -> Int -> [Map Item Double] -> [Map Item Double]
-itemBaseIngrs mc item num ingrBaseIngrs = baseIngrs:ingrBaseIngrs
+-- TODO: rewrite this somehow. feels unneat still, no idea how to represent it
+itemBaseIngrs :: ModConfig -> Item -> Int -> ([Map Item Double], Map Item Int) -> ([Map Item Double], Map Item Int)
+itemBaseIngrs mc item num (ingrBaseIngrs, products)
+    | numToCraft == 0 = (ingrBaseIngrs, products')
+    | otherwise =
+        case itemRecipes mc item of
+            -- Exactly 1 recipe: base ingredients of that recipe, multiplied
+            -- by (needed/produced) of wanted product
+            [recipe] ->
+                case recipeProducts recipe of
+                    RecipeProductsOne (_, produced) ->
+                        let itemProductionFactor =
+                                (fromIntegral num) / (fromIntegral produced)
+                            (itemBaseIngrs, products'') =
+                                recipeBaseIngrs' mc recipe products'
+                            itemBaseIngrs' = Map.map (* itemProductionFactor) itemBaseIngrs
+                        in ((itemBaseIngrs':ingrBaseIngrs), products'')
+                    RecipeProductsMany _ _ rProducts ->
+                        let produced = rProducts Map.! item
+                            itemProductionFactor =
+                                (fromIntegral num) / (fromIntegral produced)
+                            products'' =
+                                Map.unionWith (+) products' (Map.delete item rProducts)
+                            (itemBaseIngrs, products''') =
+                                recipeBaseIngrs' mc recipe products''
+                            itemBaseIngrs' = Map.map (* itemProductionFactor) itemBaseIngrs
+                        in ((itemBaseIngrs':ingrBaseIngrs), products''')
+
+            -- 0 or multiple recipes: this is a base ingredient, combine
+            -- with previous value
+            _ ->
+                let itemBaseIngrs = Map.singleton item (fromIntegral num) in
+                ((itemBaseIngrs:ingrBaseIngrs), products')
     where
-        baseIngrs =
-            case itemRecipes mc item of
-                -- Exactly 1 recipe: base ingredients of that recipe, multiplied
-                -- by (needed/produced)
-                [recipe] ->
-                    let produced = recipeNumOfProduct recipe item
-                        productionFactor =
-                            (fromIntegral num) / (fromIntegral produced) in
-                    Map.map (* productionFactor) (recipeBaseIngrs mc recipe)
+        (numToCraft, products') = calculateNeededCrafts item num products
 
-                -- 0 or multiple recipes: this is a base ingredient, combine
-                -- with previous value
-                _ -> Map.singleton item (fromIntegral num)
+calculateNeededCrafts :: Item -> Int -> Map Item Int -> (Int, Map Item Int)
+calculateNeededCrafts item num products =
+    case Map.lookup item products of
+        Nothing -> (num, products)
+        Just present ->
+            let remaining = present - num in
+            if remaining > 0 then
+                (0, Map.insert item remaining products)
+            else if remaining == 0 then
+                (0, Map.delete item products)
+            else
+                ((-remaining), Map.delete item products)
 
 -- Concatenates a list of base ingredient maps, summing duplicate ingredient
 -- amounts.
