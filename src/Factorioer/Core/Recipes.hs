@@ -14,9 +14,9 @@ import qualified Data.Map as Map
 
 -- Recipe parts are integers, but base ingredients may be fractions depending on
 -- ingredient/product ratios.
-data RecipeBaseIngredient = RecipeBaseIngredient {
-    recipeBaseIngredientItem :: Item,
-    recipeBaseIngredientAmount :: Double
+data BaseIngredient = BaseIngredient {
+    baseIngredientItem :: Item,
+    baseIngredientAmount :: Double
 } deriving (Show)
 
 -- Return all recipes in the current ModConfig which produce this item.
@@ -28,18 +28,10 @@ itemRecipes mc item =
 recipeProducesItem :: Item -> Recipe -> Bool
 recipeProducesItem item recipe =
     case recipeProducts recipe of
-        RecipeProductsOne part ->
-            recipePartsIncludesItem item [part]
-        RecipeProductsMany _ _ parts ->
-            recipePartsIncludesItem item parts
-
--- Return True if the given recipe parts include the given item.
-recipePartsIncludesItem :: Item -> [RecipePart] -> Bool
-recipePartsIncludesItem item [] = False
-recipePartsIncludesItem item (part:parts) =
-    if recipePartItem part == item
-    then True
-    else recipePartsIncludesItem item parts
+        RecipeProductsOne (product, _) ->
+            if product == item then True else False
+        RecipeProductsMany _ _ products ->
+            Map.member item products
 
 --------------------------------------------------------------------------------
 -- Functions.
@@ -54,11 +46,11 @@ recipeName :: Recipe -> Text
 recipeName recipe =
     case recipeProducts recipe of
         RecipeProductsMany name _ _ -> name
-        RecipeProductsOne part ->
-            let productName = (itemName . recipePartItem) part in
-            case recipePartNumber part of
-                1 -> productName
-                x -> tshow x <> " x " <> productName
+        RecipeProductsOne (product, num) ->
+            let productName = itemName product in
+            if num == 1
+            then productName
+            else tshow num <> " x " <> productName
 
 -- Return the icon of a recipe.
 --
@@ -70,35 +62,37 @@ recipeIcon :: Recipe -> Sprite
 recipeIcon recipe =
     case recipeProducts recipe of
         RecipeProductsMany _ sprite _ -> sprite
-        RecipeProductsOne part -> (itemSprite . recipePartItem) part
+        RecipeProductsOne (product, _) -> itemSprite product
 
--- Return the base ingredients of a recipe in the given ModConfig.
---
--- A base ingredient is one which has either 0 or more than 1 producing recipes.
--- If 0, it's a raw ingredient, like mined items (ore) or other non-craftables.
--- If >1, we'd have to provide different possible paths for the recipe's base
--- ingredients, which we're not interested in since we just want to show a
--- useful overview.
---
--- Cacheable per mod config.
-recipeBaseIngredients :: ModConfig -> Recipe -> [RecipeBaseIngredient]
-recipeBaseIngredients mc recipe =
-    let ingrs = recipeIngredients recipe in
-    concatMap (recipePartBaseIngredients mc) ingrs
+recipeBaseIngrs mc recipe =
+    let ingrs = recipeIngredients recipe
+        ingrBaseIngrs = Map.foldrWithKey (itemBaseIngrs mc) [] ingrs in
+    mergeBaseIngrs ingrBaseIngrs
 
-recipePartBaseIngredients :: ModConfig -> RecipePart -> [RecipeBaseIngredient]
-recipePartBaseIngredients mc part =
-    let item = recipePartItem part in
-    case itemRecipes mc item of
-        -- Exactly 1 recipe: base ingredients of that recipe
-        [recipe] -> recipeBaseIngredients mc recipe
+itemBaseIngrs :: ModConfig -> Item -> Int -> [Map Item Double] -> [Map Item Double]
+itemBaseIngrs mc item num ingrBaseIngrs = baseIngrs:ingrBaseIngrs
+    where
+        baseIngrs =
+            case itemRecipes mc item of
+                -- Exactly 1 recipe: base ingredients of that recipe, multiplied
+                -- by (needed/produced)
+                [recipe] ->
+                    let produced = recipeNumOfProduct recipe item
+                        productionFactor =
+                            (fromIntegral num) / (fromIntegral produced) in
+                    Map.map (* productionFactor) (recipeBaseIngrs mc recipe)
 
-        -- 0 or many recipes: this is a base ingredient, return as-is
-        _ -> [recipePartToBaseIngredient part]
+                -- 0 or multiple recipes: this is a base ingredient, combine
+                -- with previous value
+                _ -> Map.singleton item (fromIntegral num)
 
-recipePartToBaseIngredient :: RecipePart -> RecipeBaseIngredient
-recipePartToBaseIngredient part =
-    RecipeBaseIngredient {
-        recipeBaseIngredientItem=recipePartItem part,
-        recipeBaseIngredientAmount=fromIntegral (recipePartNumber part)
-    }
+-- Concatenates a list of base ingredient maps, summing duplicate ingredient
+-- amounts.
+mergeBaseIngrs :: [Map Item Double] -> Map Item Double
+mergeBaseIngrs m = foldl (Map.unionWith (+)) Map.empty m
+
+-- TODO: code smell
+recipeNumOfProduct recipe item =
+    case recipeProducts recipe of
+        RecipeProductsOne (_, num) -> num
+        RecipeProductsMany _ _ products -> products Map.! item

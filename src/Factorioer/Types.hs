@@ -25,7 +25,7 @@ data Sprite = Sprite {
 type ResPath = Text
 
 data Recipe = Recipe {
-    recipeIngredients :: [RecipePart],
+    recipeIngredients :: Map Item Int,
     recipeProducts :: RecipeProducts,
     recipeCraftTime :: CraftTime,
     recipeCrafters :: [Crafter]
@@ -40,8 +40,8 @@ data RecipePart = RecipePart {
 -- Recipes with a single product get their name and icon from that product. For
 -- recipes with multiple products, you need to provide a name and icon..
 data RecipeProducts
-    = RecipeProductsOne RecipePart
-    | RecipeProductsMany Text Sprite [RecipePart]
+    = RecipeProductsOne (Item, Int)
+    | RecipeProductsMany Text Sprite (Map Item Int)
     deriving (Eq, Ord, Show)
 
 data Crafter = Crafter {
@@ -54,24 +54,3 @@ data CraftTime
     deriving (Eq, Ord, Show)
 
 type Ticks = Int
-
---------------------------------------------------------------------------------
-
-recipeXOfItem :: Int -> Item -> [RecipePart] -> CraftTime -> [Crafter] -> Recipe
-recipeXOfItem num item ingrs craftTime crafters =
-    Recipe {
-        recipeIngredients = ingrs,
-        recipeProducts = RecipeProductsOne $ recipePartXOfItem num item,
-        recipeCraftTime = craftTime,
-        recipeCrafters = crafters
-    }
-
-recipeOneOfItem :: Item -> [RecipePart] -> CraftTime -> [Crafter] -> Recipe
-recipeOneOfItem = recipeXOfItem 1
-
-recipePartXOfItem :: Int -> Item -> RecipePart
-recipePartXOfItem num item =
-    RecipePart {recipePartItem=item, recipePartNumber=num}
-
-recipePartOneOfItem :: Item -> RecipePart
-recipePartOneOfItem = recipePartXOfItem 1

@@ -47,12 +47,12 @@ uiPopupSegmentMaybeItemDetails :: Recipe -> Maybe UIPopupSegment
 uiPopupSegmentMaybeItemDetails recipe =
     case recipeProducts recipe of
         RecipeProductsMany _ _ _ -> Nothing
-        RecipeProductsOne part ->
-            case (itemDetails . recipePartItem) part of
+        RecipeProductsOne (product, num) ->
+            case itemDetails product of
                 Nothing -> Nothing
                 Just details ->
                     Just $ UIPopupSegment {
-                        uiPopupSegmentTitle = (itemName . recipePartItem) part,
+                        uiPopupSegmentTitle = itemName product,
                         uiPopupSegmentBody = Just details
                     }
 
