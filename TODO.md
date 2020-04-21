@@ -13,6 +13,10 @@ Also, distinguish between placeable and non-placeable items. **All items are
 droppable.**, not all can be placed. (If you hold a non-placeable item in your
 hand in Factorio, the cursor continues to work as an placeable selector.)
 
+Note that for proper emulation, the UI needs access to the world so it if all
+recursive ingredients for an item are made only one way, it can tell you the raw
+resources (ones which have no recipe) required.
+
 ## Crafting
 ### Flexibility for Factorio compatibility
   * recipe name even with just one product (e.g. "Basic oil processing")

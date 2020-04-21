@@ -1,12 +1,19 @@
 {-# LANGUAGE OverloadedStrings #-}
 
-module Factorioer.Definitions.FactorioBase.All where
+module Factorioer.Mod.FactorioBase.All where
 
 import Factorioer.Types
 import Data.Text (Text)
 import qualified Data.Text as T
 import Data.Map (Map)
 import qualified Data.Map as Map
+
+recipes = [rIronPlate, rIronGearWheel, rBeltYellow]
+
+--------------------------------------------------------------------------------
+-- Helper functions.
+spriteAt :: Text -> Sprite
+spriteAt = Sprite
 
 --------------------------------------------------------------------------------
 -- Crafter definitions.
@@ -27,10 +34,10 @@ crfFurnaceElectric = Crafter {crafterSpeedFactor=2}
 --------------------------------------------------------------------------------
 -- Item definitions.
 
-iIronOre = Item {itemName="iron-ore", itemDetails=Nothing}
-iIronPlate = Item {itemName="iron-plate", itemDetails=Nothing}
-iIronGearWheel = Item {itemName="iron-gear-wheel", itemDetails=Nothing}
-iBeltYellow = Item {itemName="belt-yellow", itemDetails=Just "belt speed 15 items/s"}
+iIronOre = Item {itemName="iron-ore", itemDetails=Nothing, itemSprite=spriteAt "ore/iron"}
+iIronPlate = Item {itemName="iron-plate", itemDetails=Nothing, itemSprite=spriteAt "intm/plate/iron"}
+iIronGearWheel = Item {itemName="iron-gear-wheel", itemDetails=Nothing, itemSprite=spriteAt "intm/iron-gear-wheel"}
+iBeltYellow = Item {itemName="belt-yellow", itemDetails=Just "belt speed 15 items/s", itemSprite=spriteAt "log/belt/yellow/over"}
 
 --------------------------------------------------------------------------------
 -- Recipe definitions.
@@ -54,5 +61,5 @@ rBeltYellow =
 -- Other.
 
 -- Cheat item.
-iMagicPutty = Item {itemName="magic-putty", itemDetails=Just "free item, for testing"}
+iMagicPutty = Item {itemName="magic-putty", itemDetails=Just "free item, for testing", itemSprite=spriteAt "etc/magic-putty"}
 rMagicPutty = recipeOneOfItem iMagicPutty [] InstantCraftTime crfsPlayerAndAssemblers

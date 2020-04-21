@@ -5,37 +5,53 @@ import qualified Data.Text as T
 import Data.Map (Map)
 import qualified Data.Map as Map
 
+-- The game configuration produced by the mods in use.
+data ModConfig = ModConfig {
+    modConfigRecipes :: [Recipe]
+} deriving (Eq, Ord, Show)
+
 data Item = Item {
     itemName :: ItemName,
-    itemDetails :: Maybe Text
-} deriving (Show)
+    itemDetails :: Maybe Text,
+    itemSprite :: Sprite
+} deriving (Eq, Ord, Show)
 
 type ItemName = Text
+
+data Sprite = Sprite {
+    spriteResPath :: ResPath
+} deriving (Eq, Ord, Show)
+
+type ResPath = Text
 
 data Recipe = Recipe {
     recipeIngredients :: [RecipePart],
     recipeProducts :: RecipeProducts,
     recipeCraftTime :: CraftTime,
     recipeCrafters :: [Crafter]
-} deriving (Show)
+} deriving (Eq, Ord, Show)
 
 -- Recipe parts are integers only.
 data RecipePart = RecipePart {
     recipePartItem :: Item,
     recipePartNumber :: Int
-} deriving (Show)
+} deriving (Eq, Ord, Show)
 
--- One has auto recipe title. Many requires a recipe title.
+-- Recipes with a single product get their name and icon from that product. For
+-- recipes with multiple products, you need to provide a name and icon..
 data RecipeProducts
     = RecipeProductsOne RecipePart
-    | RecipeProductsMany Text [RecipePart]
-    deriving (Show)
+    | RecipeProductsMany Text Sprite [RecipePart]
+    deriving (Eq, Ord, Show)
 
 data Crafter = Crafter {
     crafterSpeedFactor :: Double
-} deriving (Show)
+} deriving (Eq, Ord, Show)
 
-data CraftTime = InstantCraftTime | CraftTimeTicks Ticks deriving (Show)
+data CraftTime
+    = InstantCraftTime
+    | CraftTimeTicks Ticks
+    deriving (Eq, Ord, Show)
 
 type Ticks = Int
 
