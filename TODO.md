@@ -1,3 +1,18 @@
+## Next
+### Finish the UI model for recipes
+Will also include finishing item model: image/sprites mainly.
+
+How to encode **items having various properties for their various uses?** Like
+some items connecting power poles, some being belts, etc. In the current model,
+that information must be accessible from the item, or requestable from the world
+using the item. Thinking that typeclasses may *not* help here. Maybe need to
+rewrite `Item` as a typeclass, and then allow adding items which implement
+certain properties, and are an instance of `Item`?
+
+Also, distinguish between placeable and non-placeable items. **All items are
+droppable.**, not all can be placed. (If you hold a non-placeable item in your
+hand in Factorio, the cursor continues to work as an placeable selector.)
+
 ## Crafting
 ### Flexibility for Factorio compatibility
   * recipe name even with just one product (e.g. "Basic oil processing")
