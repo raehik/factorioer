@@ -24,8 +24,10 @@ data Sprite = Sprite {
 
 type ResPath = Text
 
+type RecipeIngredients = Map Item Int
+
 data Recipe = Recipe {
-    recipeIngredients :: Map Item Int,
+    recipeIngredients :: RecipeIngredients
     recipeProducts :: RecipeProducts,
     recipeCraftTime :: CraftTime,
     recipeCrafters :: [Crafter]
@@ -41,7 +43,7 @@ data RecipePart = RecipePart {
 -- recipes with multiple products, you need to provide a name and icon..
 data RecipeProducts
     = RecipeProductsOne (Item, Int)
-    | RecipeProductsMany Text Sprite (Map Item Int)
+    | RecipeProductsMany Text Sprite RecipeIngredients
     deriving (Eq, Ord, Show)
 
 data Crafter = Crafter {

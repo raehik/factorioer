@@ -8,6 +8,8 @@ import Data.Text (Text)
 import qualified Data.Text as T
 import Data.Map (Map)
 import qualified Data.Map as Map
+import Data.Set (Set)
+import qualified Data.Set as Set
 
 --------------------------------------------------------------------------------
 -- Supporting types and functions.
@@ -64,14 +66,18 @@ recipeIcon recipe =
         RecipeProductsMany _ sprite _ -> sprite
         RecipeProductsOne (product, _) -> itemSprite product
 
-recipeBaseIngrs mc recipe = recipeBaseIngrs' mc recipe Map.empty
+type RecipeBase = ([Map Item Double], RecipeIngredients)
+
+recipeBaseIngrs :: ModConfig -> Recipe -> RecipeBase
+recipeBaseIngrs mc recipe = recipeBaseIngrs' mc recipe Map.empty Set.empty
+
+recipeBaseIngrs' :: ModConfig -> Recipe -> RecipeIngredients -> Set Item -> RecipeBase
 recipeBaseIngrs' mc recipe products =
     let ingrs = recipeIngredients recipe
         (ingrBaseIngrs, byproducts) = Map.foldrWithKey (itemBaseIngrs mc) ([], products) ingrs in
    (mergeBaseIngrs ingrBaseIngrs, byproducts)
 
--- TODO: rewrite this somehow. feels unneat still, no idea how to represent it
-itemBaseIngrs :: ModConfig -> Item -> Int -> ([Map Item Double], Map Item Int) -> ([Map Item Double], Map Item Int)
+itemBaseIngrs :: ModConfig -> Item -> Int -> RecipeBase -> RecipeBase
 itemBaseIngrs mc item num (ingrBaseIngrs, products)
     | numToCraft == 0 = (ingrBaseIngrs, products')
     | otherwise =

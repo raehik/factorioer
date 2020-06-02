@@ -1,10 +1,13 @@
 ## Next
 ### Clean up base ingr. algorithm
-  * Track and utilise byproducts
   * Later: make a safe algorithm which detects cycles
     * should be very easy, treat item as base ingredient if one of its
       ingredients is an item we've already seen
     * test with `MagicPutty <-> FormedMagicPutty`
+
+Fiiiix!
+
+  * State throughout the algorithm: seen items, byproducts.
 
 ### Finish the UI model for recipes
 Will also include finishing item model: image/sprites mainly.
